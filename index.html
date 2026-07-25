@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DailyBoost — Generate fresh daily content ideas, hooks, tips, and caption angles for your niche. No API keys required.">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>DailyBoost — Daily Content Idea Generator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0a0a0f;
+      --bg-elevated: #12121a;
+      --bg-card: #16161f;
+      --bg-input: #1a1a26;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.16);
+      --text: #f0f0f5;
+      --text-muted: #8b8b9e;
+      --text-faint: #5c5c6e;
+      --accent: #7c5cff;
+      --accent-hover: #9278ff;
+      --accent-glow: rgba(124, 92, 255, 0.35);
+      --accent-soft: rgba(124, 92, 255, 0.12);
+      --success: #34d399;
+      --success-soft: rgba(52, 211, 153, 0.12);
+      --warning: #fbbf24;
+      --pro-gradient: linear-gradient(135deg, #f59e0b, #ef4444, #ec4899);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+      --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.3);
+      --overlay: rgba(0, 0, 0, 0.65);
+    }
+
+    [data-theme="light"] {
+      --bg: #f5f5fa;
+      --bg-elevated: #ffffff;
+      --bg-card: #ffffff;
+      --bg-input: #f0f0f6;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-hover: rgba(0, 0, 0, 0.16);
+      --text: #1a1a2e;
+      --text-muted: #5c5c6e;
+      --text-faint: #8b8b9e;
+      --accent: #6d4aff;
+      --accent-hover: #5a38e0;
+      --accent-glow: rgba(109, 74, 255, 0.25);
+      --accent-soft: rgba(109, 74, 255, 0.08);
+      --success: #059669;
+      --success-soft: rgba(5, 150, 105, 0.1);
+      --warning: #d97706;
+      --pro-gradient: linear-gradient(135deg, #f59e0b, #ef4444, #ec4899);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.06);
+      --overlay: rgba(0, 0, 0, 0.4);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(236, 72, 153, 0.08), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 24px 20px 64px; }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--pro-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .logo p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: -2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn:hover { border-color: var(--border-hover); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 50%;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .btn-pro {
+      background: var(--pro-gradient);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      padding: 10px 20px;
+    }
+
+    .btn-pro:hover { box-shadow: 0 4px 24px rgba(245, 158, 11, 0.35); }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: transparent;
+      color: var(--text-muted);
+    }
+
+    .btn-ghost:hover { color: var(--text); background: var(--accent-soft); }
+
+    .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+    /* Hero / Input */
+    .hero { text-align: center; margin-bottom: 40px; }
+
+    .hero h2 {
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .hero h2 span {
+      background: var(--pro-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin: 0 auto 32px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .niche-select,
+    .topic-input {
+      width: 100%;
+      padding: 16px 20px;
+      font-size: 1.05rem;
+      font-family: inherit;
+      background: var(--bg-input);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .niche-select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238b8b9e' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 18px center;
+      padding-right: 48px;
+    }
+
+    .niche-select option {
+      background: var(--bg-card);
+      color: var(--text);
+    }
+
+    .topic-input {
+      resize: vertical;
+      min-height: 56px;
+    }
+
+    .topic-input::placeholder { color: var(--text-faint); }
+
+    .niche-select:focus,
+    .topic-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .field-hint {
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      margin-top: 6px;
+    }
+
+    .generate-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .btn-generate {
+      padding: 16px 40px;
+      font-size: 1.05rem;
+      border-radius: var(--radius);
+      min-width: 240px;
+    }
+
+    .btn-generate:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-generate.loading .btn-text { opacity: 0; }
+    .btn-generate .spinner {
+      display: none;
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .btn-generate.loading .spinner { display: block; }
+    .btn-generate { position: relative; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Results */
+    .results { display: none; animation: fadeUp 0.5s ease; }
+    .results.visible { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .results-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      padding: 16px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .results-toolbar .topic-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .results-toolbar .topic-label strong { color: var(--text); }
+
+    .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .section {
+      margin-bottom: 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-elevated);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .section-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .section-body { padding: 8px 0; }
+
+    .content-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+
+    .content-item:last-child { border-bottom: none; }
+    .content-item:hover { background: var(--accent-soft); }
+
+    .item-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .item-text {
+      flex: 1;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .content-item:hover .item-actions { opacity: 1; }
+
+    .item-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: var(--bg-input);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      color: var(--text-muted);
+    }
+
+    .item-btn:hover { background: var(--accent); color: #fff; }
+    .item-btn.favorited { color: #f59e0b; opacity: 1; }
+
+    .thread-item .thread-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .thread-item .thread-preview {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .hook-item .item-text {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: 1rem;
+    }
+
+    /* Favorites panel */
+    .favorites-panel {
+      margin-top: 32px;
+      display: none;
+    }
+
+    .favorites-panel.visible { display: block; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+    }
+
+    .empty-state .emoji { font-size: 2.5rem; margin-bottom: 12px; }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      padding: 14px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow);
+      font-size: 0.875rem;
+      animation: toastIn 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.success { border-color: var(--success); }
+    .toast.success::before { content: "✓"; color: var(--success); font-weight: 700; }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Pro CTA */
+    .pro-cta {
+      text-align: center;
+      margin: 40px 0 0;
+      padding: 28px 24px;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border-radius: 16px;
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pro-cta p {
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      color: #e2e8f0;
+    }
+
+    .pro-cta p strong { color: #fff; }
+
+    .pro-cta-btn {
+      background: #22c55e;
+      color: #0f172a;
+      padding: 14px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      display: inline-block;
+      transition: all var(--transition);
+      border: none;
+      font-family: inherit;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .pro-cta-btn:hover {
+      background: #16a34a;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+    }
+
+    .pro-cta .cross-link {
+      margin-top: 20px;
+      font-size: 0.95rem;
+      color: #94a3b8;
+    }
+
+    .pro-cta .cross-link a {
+      color: #a78bfa;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color var(--transition);
+    }
+
+    .pro-cta .cross-link a:hover {
+      color: #c4b5fd;
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      color: var(--text-faint);
+      font-size: 0.8rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .app { padding: 16px 16px 48px; }
+      header { margin-bottom: 32px; }
+      .results-toolbar { flex-direction: column; align-items: stretch; }
+      .toolbar-actions { justify-content: stretch; }
+      .toolbar-actions .btn { flex: 1; }
+      .item-actions { opacity: 1; }
+      .content-item { padding: 12px 16px; }
+      .toast-container { left: 16px; right: 16px; bottom: 16px; }
+      .btn-generate { min-width: 100%; width: 100%; }
+      .pro-cta { padding: 24px 18px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">
+        <div class="logo-icon" aria-hidden="true">⚡</div>
+        <div>
+          <h1>DailyBoost</h1>
+          <p>Fresh ideas, every day</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-icon" id="themeToggle" aria-label="Toggle dark/light mode" title="Toggle theme">🌙</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h2>Your daily dose of <span>content fuel</span></h2>
+      <p>Generate hooks, tips, thread starters, caption angles, and more — tailored to your niche, ready to post today.</p>
+      <div class="input-group">
+        <div>
+          <label class="field-label" for="nicheSelect">Niche</label>
+          <select class="niche-select" id="nicheSelect" aria-label="Select a niche">
+            <option value="">Select a niche…</option>
+            <option value="Fitness & Wellness">Fitness &amp; Wellness</option>
+            <option value="Personal Finance">Personal Finance</option>
+            <option value="Tech & SaaS">Tech &amp; SaaS</option>
+            <option value="Food & Cooking">Food &amp; Cooking</option>
+            <option value="Travel & Adventure">Travel &amp; Adventure</option>
+            <option value="Parenting & Family">Parenting &amp; Family</option>
+            <option value="Marketing & Business">Marketing &amp; Business</option>
+            <option value="Fashion & Style">Fashion &amp; Style</option>
+            <option value="Real Estate">Real Estate</option>
+            <option value="Education & Learning">Education &amp; Learning</option>
+            <option value="Mental Health">Mental Health</option>
+            <option value="Gaming">Gaming</option>
+            <option value="Beauty & Skincare">Beauty &amp; Skincare</option>
+            <option value="Career & Leadership">Career &amp; Leadership</option>
+            <option value="custom">Custom niche…</option>
+          </select>
+        </div>
+        <div id="customNicheWrap" style="display: none;">
+          <label class="field-label" for="customNiche">Your custom niche</label>
+          <textarea
+            class="topic-input"
+            id="customNiche"
+            rows="2"
+            placeholder="e.g. sustainable living, indie game dev, dog training"
+            aria-label="Custom niche"
+          ></textarea>
+          <p class="field-hint">Be specific — better niche = better ideas.</p>
+        </div>
+        <div class="generate-row">
+          <button class="btn btn-primary btn-generate" id="generateBtn">
+            <span class="btn-text">Generate Today’s Boost</span>
+            <span class="spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="results" id="results" aria-live="polite">
+      <div class="results-toolbar">
+        <div class="topic-label">Today’s boost for: <strong id="resultTopic"></strong></div>
+        <div class="toolbar-actions">
+          <button class="btn btn-sm" id="copyAllBtn" title="Copy all content">📋 Copy All</button>
+          <button class="btn btn-sm" id="exportBtn" title="Export as text file">💾 Export</button>
+          <button class="btn btn-sm btn-ghost" id="toggleFavoritesBtn" title="View favorites">⭐ Favorites (<span id="favCount">0</span>)</button>
+        </div>
+      </div>
+
+      <div class="section" id="hooksSection">
+        <div class="section-header">
+          <div class="section-title">
+            <span>🎣</span> Scroll-Stopping Hooks
+            <span class="section-badge" id="hooksBadge">5</span>
+          </div>
+          <button class="btn btn-sm btn-ghost" data-copy-section="hooks">Copy section</button>
+        </div>
+        <div class="section-body" id="hooksList"></div>
+      </div>
+
+      <div class="section" id="tipsSection">
+        <div class="section-header">
+          <div class="section-title">
+            <span>💡</span> Quick-Win Tips
+            <span class="section-badge" id="tipsBadge">5</span>
+          </div>
+          <button class="btn btn-sm btn-ghost" data-copy-section="tips">Copy section</button>
+        </div>
+        <div class="section-body" id="tipsList"></div>
+      </div>
+
+      <div class="section" id="threadsSection">
+        <div class="section-header">
+          <div class="section-title">
+            <span>🧵</span> Thread Starters
+            <span class="section-badge" id="threadsBadge">4</span>
+          </div>
+          <button class="btn btn-sm btn-ghost" data-copy-section="threads">Copy section</button>
+        </div>
+        <div class="section-body" id="threadsList"></div>
+      </div>
+
+      <div class="section" id="captionsSection">
+        <div class="section-header">
+          <div class="section-title">
+            <span>✍️</span> Caption Angles
+            <span class="section-badge" id="captionsBadge">5</span>
+          </div>
+          <button class="btn btn-sm btn-ghost" data-copy-section="captions">Copy section</button>
+        </div>
+        <div class="section-body" id="captionsList"></div>
+      </div>
+
+      <div class="section" id="questionsSection">
+        <div class="section-header">
+          <div class="section-title">
+            <span>❓</span> Engagement Questions
+            <span class="section-badge" id="questionsBadge">5</span>
+          </div>
+          <button class="btn btn-sm btn-ghost" data-copy-section="questions">Copy section</button>
+        </div>
+        <div class="section-body" id="questionsList"></div>
+      </div>
+
+      <div class="section" id="storiesSection">
+        <div class="section-header">
+          <div class="section-title">
+            <span>📖</span> Story Prompts
+            <span class="section-badge" id="storiesBadge">4</span>
+          </div>
+          <button class="btn btn-sm btn-ghost" data-copy-section="stories">Copy section</button>
+        </div>
+        <div class="section-body" id="storiesList"></div>
+      </div>
+
+      <div class="section" id="seriesSection">
+        <div class="section-header">
+          <div class="section-title">
+            <span>📅</span> Content Series Ideas
+            <span class="section-badge" id="seriesBadge">4</span>
+          </div>
+          <button class="btn btn-sm btn-ghost" data-copy-section="series">Copy section</button>
+        </div>
+        <div class="section-body" id="seriesList"></div>
+      </div>
+    </section>
+
+    <section class="favorites-panel section" id="favoritesPanel">
+      <div class="section-header">
+        <div class="section-title">
+          <span>⭐</span> Saved Favorites
+        </div>
+        <button class="btn btn-sm btn-ghost" id="clearFavoritesBtn">Clear all</button>
+      </div>
+      <div class="section-body" id="favoritesList">
+        <div class="empty-state">
+          <div class="emoji">☆</div>
+          <p>No favorites yet. Star any item to save it here.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="pro-cta">
+      <p><strong>Ready for unlimited daily boosts?</strong></p>
+      <a class="pro-cta-btn" href="https://thadventure8.gumroad.com/l/tfoikx" target="_blank" rel="noopener noreferrer">Get DailyBoost Pro →</a>
+      <p class="cross-link">
+        Got a good idea? Expand it with
+        <a href="https://thadwaugh-dev.github.io/content-spark-simple/" target="_blank" rel="noopener noreferrer">ContentSpark</a>
+      </p>
+    </div>
+
+    <footer>
+      DailyBoost &copy; 2026 — Built for creators, no API keys required.
+      · Sibling of <a href="https://thadwaugh-dev.github.io/content-spark-simple/" target="_blank" rel="noopener noreferrer">ContentSpark</a>
+    </footer>
+  </div>
+
+  <div class="toast-container" id="toastContainer" aria-live="assertive"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_THEME = 'dailyboost-theme';
+      const STORAGE_FAVORITES = 'dailyboost-favorites';
+
+      let currentContent = null;
+      let favorites = loadFavorites();
+
+      const $ = (sel) => document.querySelector(sel);
+      const $$ = (sel) => document.querySelectorAll(sel);
+
+      const nicheSelect = $('#nicheSelect');
+      const customNicheWrap = $('#customNicheWrap');
+      const customNiche = $('#customNiche');
+      const generateBtn = $('#generateBtn');
+      const results = $('#results');
+      const resultTopic = $('#resultTopic');
+      const themeToggle = $('#themeToggle');
+      const favCount = $('#favCount');
+      const favoritesPanel = $('#favoritesPanel');
+      const favoritesList = $('#favoritesList');
+
+      /* ── Theme ── */
+      function getPreferredTheme() {
+        const saved = localStorage.getItem(STORAGE_THEME);
+        if (saved) return saved;
+        return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      }
+
+      function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
+        localStorage.setItem(STORAGE_THEME, theme);
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.content = theme === 'dark' ? '#0a0a0f' : '#f5f5fa';
+      }
+
+      setTheme(getPreferredTheme());
+
+      themeToggle.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        setTheme(next);
+      });
+
+      /* ── Niche selector ── */
+      nicheSelect.addEventListener('change', () => {
+        const isCustom = nicheSelect.value === 'custom';
+        customNicheWrap.style.display = isCustom ? 'block' : 'none';
+        if (isCustom) {
+          customNiche.focus();
+        } else {
+          customNiche.value = '';
+        }
+      });
+
+      function getActiveNiche() {
+        if (nicheSelect.value === 'custom') {
+          return customNiche.value.trim();
+        }
+        return nicheSelect.value.trim();
+      }
+
+      /* ── Toast ── */
+      function showToast(message) {
+        const container = $('#toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'toast success';
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity 0.3s';
+          setTimeout(() => toast.remove(), 300);
+        }, 2800);
+      }
+
+      /* ── Clipboard ── */
+      async function copyText(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast('Copied to clipboard!');
+          return true;
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+          showToast('Copied to clipboard!');
+          return true;
+        }
+      }
+
+      /* ── Favorites ── */
+      function loadFavorites() {
+        try {
+          return JSON.parse(localStorage.getItem(STORAGE_FAVORITES) || '[]');
+        } catch {
+          return [];
+        }
+      }
+
+      function saveFavorites() {
+        localStorage.setItem(STORAGE_FAVORITES, JSON.stringify(favorites));
+        updateFavCount();
+        renderFavoritesPanel();
+      }
+
+      function updateFavCount() {
+        favCount.textContent = favorites.length;
+      }
+
+      function favoriteId(type, index) {
+        return `${currentContent?.topic || ''}::${type}::${index}`;
+      }
+
+      function isFavorited(type, index) {
+        return favorites.some((f) => f.id === favoriteId(type, index));
+      }
+
+      function toggleFavorite(type, index, text) {
+        const id = favoriteId(type, index);
+        const existing = favorites.findIndex((f) => f.id === id);
+        if (existing >= 0) {
+          favorites.splice(existing, 1);
+          showToast('Removed from favorites');
+        } else {
+          favorites.push({ id, type, text, topic: currentContent.topic, savedAt: Date.now() });
+          showToast('Saved to favorites!');
+        }
+        saveFavorites();
+        updateFavoriteButtons();
+      }
+
+      function updateFavoriteButtons() {
+        $$('.item-btn[data-fav]').forEach((btn) => {
+          const type = btn.dataset.fav;
+          const index = parseInt(btn.dataset.index, 10);
+          const starred = isFavorited(type, index);
+          btn.classList.toggle('favorited', starred);
+          btn.textContent = starred ? '★' : '☆';
+          btn.setAttribute('aria-label', starred ? 'Remove from favorites' : 'Save to favorites');
+        });
+      }
+
+      function renderFavoritesPanel() {
+        if (favorites.length === 0) {
+          favoritesList.innerHTML = `
+            <div class="empty-state">
+              <div class="emoji">☆</div>
+              <p>No favorites yet. Star any item to save it here.</p>
+            </div>`;
+          return;
+        }
+
+        favoritesList.innerHTML = favorites
+          .slice()
+          .sort((a, b) => b.savedAt - a.savedAt)
+          .map((f, i) => `
+            <div class="content-item">
+              <span class="item-num">${typeEmoji(f.type)}</span>
+              <div class="item-text">
+                <div style="font-size:0.75rem;color:var(--text-faint);margin-bottom:4px">${escapeHtml(f.topic)} · ${escapeHtml(f.type)}</div>
+                ${escapeHtml(f.text).replace(/\n/g, '<br>')}
+              </div>
+              <div class="item-actions" style="opacity:1">
+                <button class="item-btn" data-copy-fav="${i}" title="Copy" aria-label="Copy">📋</button>
+                <button class="item-btn favorited" data-remove-fav="${i}" title="Remove" aria-label="Remove">✕</button>
+              </div>
+            </div>`)
+          .join('');
+
+        favoritesList.querySelectorAll('[data-copy-fav]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const sorted = favorites.slice().sort((a, b) => b.savedAt - a.savedAt);
+            const f = sorted[parseInt(btn.dataset.copyFav, 10)];
+            if (f) copyText(f.text);
+          });
+        });
+
+        favoritesList.querySelectorAll('[data-remove-fav]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const sorted = favorites.slice().sort((a, b) => b.savedAt - a.savedAt);
+            const f = sorted[parseInt(btn.dataset.removeFav, 10)];
+            if (!f) return;
+            const idx = favorites.findIndex((x) => x.id === f.id);
+            if (idx >= 0) favorites.splice(idx, 1);
+            saveFavorites();
+            updateFavoriteButtons();
+            showToast('Removed from favorites');
+          });
+        });
+      }
+
+      function typeEmoji(type) {
+        return {
+          hooks: '🎣',
+          tips: '💡',
+          threads: '🧵',
+          captions: '✍️',
+          questions: '❓',
+          stories: '📖',
+          series: '📅',
+        }[type] || '⚡';
+      }
+
+      /* ── Content Generation ── */
+      function slugify(topic) {
+        return topic.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().split(/\s+/).filter(Boolean);
+      }
+
+      function capitalize(s) {
+        if (!s) return s;
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      }
+
+      function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function generateHooks(topic, words) {
+        const w = words[0] || 'this';
+        const niche = capitalize(topic);
+        const pool = [
+          `"Stop. If you're in ${topic}, you need to hear this."`,
+          `"Nobody talks about this ${w} mistake — until it's too late."`,
+          `"I was wrong about ${topic} for 2 years. Here's what changed."`,
+          `"POV: You finally figured out ${topic} and everything clicked."`,
+          `"The ${niche} tip that made me delete half my content strategy."`,
+          `"Wait — you're still doing ${topic} the hard way?"`,
+          `"Give me 20 seconds and I'll change how you think about ${topic}."`,
+          `"This one ${w} habit separates beginners from pros."`,
+          `"Unpopular opinion: most ${topic} advice is holding you back."`,
+          `"If I had to restart ${topic} from zero tomorrow, I'd only do these 3 things."`,
+          `"The ${topic} industry doesn't want beginners to know this."`,
+          `"Day 1 vs Day 100 in ${topic}. Same person. Wild difference."`,
+        ];
+        return shuffle(pool).slice(0, 5);
+      }
+
+      function generateTips(topic, words) {
+        const w = words[0] || 'content';
+        const pool = [
+          `Batch 3 ${topic} posts on Sunday so you're never scrambling mid-week.`,
+          `Lead with a specific number in your ${topic} headlines — "7 mistakes" outperforms "common mistakes."`,
+          `Save your best ${w} wins as screenshots — proof beats theory every time.`,
+          `Reply to 5 posts in your ${topic} niche before you publish your own. Algorithm + community win.`,
+          `Turn one customer question about ${topic} into a carousel. Real questions = real engagement.`,
+          `End every ${topic} post with one clear next step — not "thoughts?"`,
+          `Repurpose your top ${topic} post into a short video script within 48 hours of peak engagement.`,
+          `Keep a running note titled "Audience said…" and mine it weekly for ${topic} content.`,
+          `Post your ${topic} process, not just the polished result — behind-the-scenes builds trust.`,
+          `Use the "before → mistake → fix" structure for ${topic} tips. Simple. Scroll-stopping.`,
+          `Pin a "start here" ${topic} guide so new followers know exactly where to begin.`,
+          `Test one bold ${topic} opinion per week. Polarizing (but kind) content travels farther.`,
+        ];
+        return shuffle(pool).slice(0, 5);
+      }
+
+      function generateThreads(topic, words) {
+        const w = words[0] || 'growth';
+        const pool = [
+          {
+            title: `The ${topic} playbook I wish I had on day one`,
+            preview: `Tweet 1: I've spent years in ${topic}. This is the no-fluff thread I needed when I started… (7 tweets)`,
+          },
+          {
+            title: `5 ${w} mistakes that quietly kill momentum`,
+            preview: `Tweet 1: I made every ${topic} mistake so you don't have to. Let's fix them one by one 🧵`,
+          },
+          {
+            title: `How to go from zero to consistent in ${topic}`,
+            preview: `Tweet 1: Consistency isn't motivation. It's a system. Here's the one I use for ${topic}.`,
+          },
+          {
+            title: `Tools & free resources for ${topic} beginners`,
+            preview: `Tweet 1: Starting ${topic} and feeling overwhelmed? Bookmark this. Zero gatekeeping.`,
+          },
+          {
+            title: `Debunking ${topic} myths in 2026`,
+            preview: `Tweet 1: "You need a huge following for ${topic}." Wrong. 5 myths, 5 corrections.`,
+          },
+          {
+            title: `A realistic week in ${topic} (no highlight reel)`,
+            preview: `Tweet 1: People ask what my ${topic} routine looks like. Hour-by-hour honesty inside.`,
+          },
+          {
+            title: `${capitalize(topic)} trends worth watching this quarter`,
+            preview: `Tweet 1: The ${topic} landscape is shifting. These trends will matter more than aesthetics.`,
+          },
+        ];
+        return shuffle(pool).slice(0, 4);
+      }
+
+      function generateCaptions(topic, words) {
+        const w = words[0] || 'content';
+        const pool = [
+          `Angle: Contrarian — "Everyone in ${topic} says X. Here's why I do the opposite."`,
+          `Angle: Transformation — "From stuck to unstoppable in ${topic} — what actually moved the needle."`,
+          `Angle: Behind the scenes — "What creating ${topic} content looks like when no one's watching."`,
+          `Angle: Checklist energy — "Steal my ${w} prep checklist before your next post goes live."`,
+          `Angle: Story hook — "I almost quit ${topic}. Then this one comment changed everything."`,
+          `Angle: Teachable moment — "3 ${topic} lessons I learned the expensive way (so you don't)."`,
+          `Angle: Community shoutout — "Shoutout to everyone grinding in ${topic} right now. You're not alone."`,
+          `Angle: FOMO / timely — "If you're in ${topic} this week, try this one experiment with me."`,
+          `Angle: Proof + CTA — "Results from my last ${topic} experiment ↓ Save this, then try it."`,
+          `Angle: Soft sell — "I built this for people serious about ${topic}. Free version first — no pressure."`,
+        ];
+        return shuffle(pool).slice(0, 5);
+      }
+
+      function generateQuestions(topic, words) {
+        const w = words[0] || 'this';
+        const pool = [
+          `What's the #1 thing holding you back in ${topic} right now?`,
+          `Be honest: do you actually enjoy ${topic}, or are you just "supposed to" do it?`,
+          `If you could restart your ${topic} journey with one piece of advice, what would it be?`,
+          `Which ${w} habit made the biggest difference for you this month?`,
+          `Hot take time: what's overrated advice in ${topic}?`,
+          `Are you team "post daily" or "post when it's great" for ${topic}?`,
+          `What's one ${topic} win you're celebrating this week? (Even a tiny one counts.)`,
+          `New to ${topic} or years in — what's the question you still wish someone answered clearly?`,
+          `If your ${topic} content could only help one person, who would it be and why?`,
+          `Would you rather have 10K followers or 100 true fans in ${topic}?`,
+        ];
+        return shuffle(pool).slice(0, 5);
+      }
+
+      function generateStories(topic, words) {
+        const w = words[0] || 'craft';
+        const pool = [
+          `Tell the story of your first awkward ${topic} attempt — and what you'd tell that version of you now.`,
+          `Describe the moment ${topic} stopped feeling like work and started feeling like identity.`,
+          `Share a failure in ${topic} that later became your most useful teaching story.`,
+          `Walk through a day when everything went wrong in ${topic} — and how you recovered.`,
+          `Narrate the feedback (good or brutal) that completely reshaped your ${w} approach.`,
+          `Tell the origin story: why you chose ${topic} when easier paths were available.`,
+          `Share a client/audience moment that reminded you why ${topic} matters.`,
+          `Recount the week you almost quit ${topic} — and the one habit that pulled you back.`,
+        ];
+        return shuffle(pool).slice(0, 4);
+      }
+
+      function generateSeries(topic, words) {
+        const w = words[0] || 'growth';
+        const pool = [
+          `"${capitalize(topic)} in 60 seconds" — short daily tips for 7 days straight.`,
+          `"Myth vs Reality" series: debunk one common ${topic} belief every Monday.`,
+          `"Tools I actually use" — weekly deep-dive into one resource for ${topic}.`,
+          `"Audience Q&A Fridays" — answer real ${topic} questions from comments all week.`,
+          `"Before / After" mini-docs: document a 30-day ${w} experiment with weekly checkpoints.`,
+          `"Unpopular opinions in ${topic}" — one bold take per week with receipts.`,
+          `"Start here" series for beginners: 5 foundational posts that map a clear ${topic} path.`,
+          `"Steal this template" — share one reusable framework for ${topic} every Tuesday.`,
+        ];
+        return shuffle(pool).slice(0, 4);
+      }
+
+      function generateContent(topic) {
+        const words = slugify(topic);
+        const displayTopic = topic.trim() || 'your niche';
+        return {
+          topic: displayTopic,
+          hooks: generateHooks(displayTopic, words),
+          tips: generateTips(displayTopic, words),
+          threads: generateThreads(displayTopic, words),
+          captions: generateCaptions(displayTopic, words),
+          questions: generateQuestions(displayTopic, words),
+          stories: generateStories(displayTopic, words),
+          series: generateSeries(displayTopic, words),
+        };
+      }
+
+      /* ── Render ── */
+      function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function renderItem(text, index, type, extraClass = '') {
+        const starred = currentContent && isFavorited(type, index);
+        return `
+          <div class="content-item ${extraClass}">
+            <span class="item-num">${index + 1}</span>
+            <div class="item-text">${escapeHtml(text).replace(/\n/g, '<br>')}</div>
+            <div class="item-actions">
+              <button class="item-btn" data-copy="${type}" data-index="${index}" title="Copy" aria-label="Copy">📋</button>
+              <button class="item-btn ${starred ? 'favorited' : ''}" data-fav="${type}" data-index="${index}" title="Favorite" aria-label="Save to favorites">${starred ? '★' : '☆'}</button>
+            </div>
+          </div>`;
+      }
+
+      function renderThread(thread, index) {
+        const starred = currentContent && isFavorited('threads', index);
+        return `
+          <div class="content-item thread-item">
+            <span class="item-num">${index + 1}</span>
+            <div class="item-text">
+              <div class="thread-title">${escapeHtml(thread.title)}</div>
+              <div class="thread-preview">${escapeHtml(thread.preview)}</div>
+            </div>
+            <div class="item-actions">
+              <button class="item-btn" data-copy="threads" data-index="${index}" title="Copy" aria-label="Copy">📋</button>
+              <button class="item-btn ${starred ? 'favorited' : ''}" data-fav="threads" data-index="${index}" title="Favorite" aria-label="Save to favorites">${starred ? '★' : '☆'}</button>
+            </div>
+          </div>`;
+      }
+
+      function getItemText(type, index) {
+        if (!currentContent) return '';
+        if (type === 'threads') {
+          const t = currentContent.threads[index];
+          return `${t.title}\n${t.preview}`;
+        }
+        return currentContent[type][index];
+      }
+
+      function renderResults(content) {
+        currentContent = content;
+        resultTopic.textContent = content.topic;
+
+        const map = {
+          hooks: { list: 'hooksList', badge: 'hooksBadge', render: (items) => items.map((c, i) => renderItem(c, i, 'hooks', 'hook-item')).join('') },
+          tips: { list: 'tipsList', badge: 'tipsBadge', render: (items) => items.map((c, i) => renderItem(c, i, 'tips')).join('') },
+          threads: { list: 'threadsList', badge: 'threadsBadge', render: (items) => items.map((t, i) => renderThread(t, i)).join('') },
+          captions: { list: 'captionsList', badge: 'captionsBadge', render: (items) => items.map((c, i) => renderItem(c, i, 'captions')).join('') },
+          questions: { list: 'questionsList', badge: 'questionsBadge', render: (items) => items.map((c, i) => renderItem(c, i, 'questions')).join('') },
+          stories: { list: 'storiesList', badge: 'storiesBadge', render: (items) => items.map((c, i) => renderItem(c, i, 'stories')).join('') },
+          series: { list: 'seriesList', badge: 'seriesBadge', render: (items) => items.map((c, i) => renderItem(c, i, 'series')).join('') },
+        };
+
+        Object.keys(map).forEach((key) => {
+          const cfg = map[key];
+          const items = content[key];
+          $(`#${cfg.list}`).innerHTML = cfg.render(items);
+          $(`#${cfg.badge}`).textContent = items.length;
+        });
+
+        results.classList.add('visible');
+        bindItemEvents();
+      }
+
+      function bindItemEvents() {
+        $$('[data-copy]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const text = getItemText(btn.dataset.copy, parseInt(btn.dataset.index, 10));
+            copyText(text);
+          });
+        });
+
+        $$('[data-fav]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const type = btn.dataset.fav;
+            const index = parseInt(btn.dataset.index, 10);
+            const text = getItemText(type, index);
+            toggleFavorite(type, index, text);
+          });
+        });
+      }
+
+      function getSectionText(section) {
+        if (!currentContent) return '';
+        const c = currentContent;
+        const lines = [`DailyBoost — ${c.topic}`, new Date().toLocaleDateString(), ''];
+
+        const sections = [
+          { key: 'hooks', title: 'SCROLL-STOPPING HOOKS', format: (items) => items.forEach((item, i) => lines.push(`${i + 1}. ${item}`, '')) },
+          { key: 'tips', title: 'QUICK-WIN TIPS', format: (items) => items.forEach((item, i) => lines.push(`${i + 1}. ${item}`, '')) },
+          { key: 'threads', title: 'THREAD STARTERS', format: (items) => items.forEach((t, i) => lines.push(`${i + 1}. ${t.title}`, t.preview, '')) },
+          { key: 'captions', title: 'CAPTION ANGLES', format: (items) => items.forEach((item, i) => lines.push(`${i + 1}. ${item}`, '')) },
+          { key: 'questions', title: 'ENGAGEMENT QUESTIONS', format: (items) => items.forEach((item, i) => lines.push(`${i + 1}. ${item}`, '')) },
+          { key: 'stories', title: 'STORY PROMPTS', format: (items) => items.forEach((item, i) => lines.push(`${i + 1}. ${item}`, '')) },
+          { key: 'series', title: 'CONTENT SERIES IDEAS', format: (items) => items.forEach((item, i) => lines.push(`${i + 1}. ${item}`, '')) },
+        ];
+
+        sections.forEach(({ key, title, format }) => {
+          if (section === key || section === 'all') {
+            lines.push(`=== ${title} ===`, '');
+            format(c[key]);
+          }
+        });
+
+        return lines.join('\n').trim();
+      }
+
+      function exportAsText() {
+        if (!currentContent) return;
+        const text = getSectionText('all');
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const slug = currentContent.topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40);
+        a.href = url;
+        a.download = `dailyboost-${slug || 'boost'}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Exported as text file!');
+      }
+
+      /* ── Generate flow ── */
+      async function handleGenerate() {
+        const topic = getActiveNiche();
+        if (!topic) {
+          if (nicheSelect.value === 'custom') {
+            customNiche.focus();
+            customNiche.style.borderColor = '#ef4444';
+            setTimeout(() => { customNiche.style.borderColor = ''; }, 1500);
+          } else {
+            nicheSelect.focus();
+            nicheSelect.style.borderColor = '#ef4444';
+            setTimeout(() => { nicheSelect.style.borderColor = ''; }, 1500);
+          }
+          showToast('Please select or enter a niche');
+          return;
+        }
+
+        generateBtn.disabled = true;
+        generateBtn.classList.add('loading');
+
+        await new Promise((r) => setTimeout(r, 900 + Math.random() * 600));
+
+        const content = generateContent(topic);
+        renderResults(content);
+
+        generateBtn.disabled = false;
+        generateBtn.classList.remove('loading');
+
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      generateBtn.addEventListener('click', handleGenerate);
+
+      customNiche.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleGenerate();
+        }
+      });
+
+      $('#copyAllBtn').addEventListener('click', () => {
+        if (!currentContent) return;
+        copyText(getSectionText('all'));
+      });
+
+      $('#exportBtn').addEventListener('click', exportAsText);
+
+      $$('[data-copy-section]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (!currentContent) return;
+          copyText(getSectionText(btn.dataset.copySection));
+        });
+      });
+
+      let favoritesVisible = false;
+      $('#toggleFavoritesBtn').addEventListener('click', () => {
+        favoritesVisible = !favoritesVisible;
+        favoritesPanel.classList.toggle('visible', favoritesVisible);
+        if (favoritesVisible) favoritesPanel.scrollIntoView({ behavior: 'smooth' });
+      });
+
+      $('#clearFavoritesBtn').addEventListener('click', () => {
+        if (favorites.length === 0) return;
+        if (confirm('Clear all favorites?')) {
+          favorites = [];
+          saveFavorites();
+          updateFavoriteButtons();
+          showToast('Favorites cleared');
+        }
+      });
+
+      /* ── Init ── */
+      updateFavCount();
+      renderFavoritesPanel();
+    })();
+  </script>
+</body>
+</html>
